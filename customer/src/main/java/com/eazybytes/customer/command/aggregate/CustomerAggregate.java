@@ -1,5 +1,9 @@
 package com.eazybytes.customer.command.aggregate;
 
+import com.eazybytes.common.command.RollbackCusMobNumCommand;
+import com.eazybytes.common.command.UpdateCusMobNumCommand;
+import com.eazybytes.common.event.CusMobNumRollbackedEvent;
+import com.eazybytes.common.event.CusMobNumUpdatedEvent;
 import com.eazybytes.customer.command.CreateCustomerCommand;
 import com.eazybytes.customer.command.DeleteCustomerCommand;
 import com.eazybytes.customer.command.UpdateCustomerCommand;
@@ -30,6 +34,7 @@ public class CustomerAggregate {
     private String email;
     private String mobileNumber;
     private boolean activeSw;
+    private String errorMsg;
 
     public CustomerAggregate() {
 
@@ -86,4 +91,28 @@ public class CustomerAggregate {
         this.activeSw = customerDeletedEvent.isActiveSw();
     }
 
+    @CommandHandler
+    public void handle(UpdateCusMobNumCommand updateCusMobNumCommand) {
+        CusMobNumUpdatedEvent cusMobNumUpdatedEvent = new CusMobNumUpdatedEvent();
+        BeanUtils.copyProperties(updateCusMobNumCommand, cusMobNumUpdatedEvent);
+        AggregateLifecycle.apply(cusMobNumUpdatedEvent);
+    }
+
+    @EventSourcingHandler
+    public void on(CusMobNumUpdatedEvent cusMobNumUpdatedEvent) {
+        this.mobileNumber = cusMobNumUpdatedEvent.getNewMobileNumber();
+    }
+
+    @CommandHandler
+    public void handle(RollbackCusMobNumCommand rollbackCusMobNumCommand) {
+        CusMobNumRollbackedEvent cusMobNumRollbackedEvent = new CusMobNumRollbackedEvent();
+        BeanUtils.copyProperties(rollbackCusMobNumCommand, cusMobNumRollbackedEvent);
+        AggregateLifecycle.apply(cusMobNumRollbackedEvent);
+    }
+
+    @EventSourcingHandler
+    public void on(CusMobNumRollbackedEvent cusMobNumRollbackedEvent) {
+        this.mobileNumber = cusMobNumRollbackedEvent.getMobileNumber();
+        this.errorMsg = cusMobNumRollbackedEvent.getErrorMsg();
+    }
 }
