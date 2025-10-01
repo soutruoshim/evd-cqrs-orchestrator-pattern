@@ -59,7 +59,7 @@ public class AccountsCommandController {
                 .accountNumber(accountNumber).activeSw(AccountsConstants.IN_ACTIVE_SW).build();
         commandGateway.sendAndWait(deleteCommand);
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(org.springframework.http.HttpStatus.OK)
                 .body(new ResponseDto(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200));
     }
 

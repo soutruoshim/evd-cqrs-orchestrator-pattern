@@ -6,6 +6,10 @@ import com.eazybytes.accounts.command.UpdateAccountCommand;
 import com.eazybytes.accounts.command.event.AccountCreatedEvent;
 import com.eazybytes.accounts.command.event.AccountDeletedEvent;
 import com.eazybytes.accounts.command.event.AccountUpdatedEvent;
+import com.eazybytes.common.command.RollbackAccntMobNumCommand;
+import com.eazybytes.common.command.UpdateAccntMobileNumCommand;
+import com.eazybytes.common.event.AccntMobNumRollbackedEvent;
+import com.eazybytes.common.event.AccntMobileNumUpdatedEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -66,6 +70,31 @@ public class AccountsAggregate {
     @EventSourcingHandler
     public void on(AccountDeletedEvent accountDeletedEvent) {
         this.activeSw = accountDeletedEvent.isActiveSw();
+    }
+
+    @CommandHandler
+    public void handle(UpdateAccntMobileNumCommand updateAccntMobileNumCommand) {
+        AccntMobileNumUpdatedEvent accntMobileNumUpdatedEvent = new AccntMobileNumUpdatedEvent();
+        BeanUtils.copyProperties(updateAccntMobileNumCommand, accntMobileNumUpdatedEvent);
+        AggregateLifecycle.apply(accntMobileNumUpdatedEvent);
+    }
+
+    @EventSourcingHandler
+    public void on(AccntMobileNumUpdatedEvent accntMobileNumUpdatedEvent) {
+        this.mobileNumber = accntMobileNumUpdatedEvent.getNewMobileNumber();
+    }
+
+    @CommandHandler
+    public void handle(RollbackAccntMobNumCommand rollbackAccntMobNumCommand) {
+        AccntMobNumRollbackedEvent accntMobNumRollbackedEvent = new AccntMobNumRollbackedEvent();
+        BeanUtils.copyProperties(rollbackAccntMobNumCommand, accntMobNumRollbackedEvent);
+        AggregateLifecycle.apply(accntMobNumRollbackedEvent);
+    }
+
+    @EventSourcingHandler
+    public void on(AccntMobNumRollbackedEvent accntMobNumRollbackedEvent) {
+        this.mobileNumber = accntMobNumRollbackedEvent.getMobileNumber();
+        this.errorMsg = accntMobNumRollbackedEvent.getErrorMsg();
     }
 
 }
