@@ -65,7 +65,7 @@ public class CardCommandController {
                 .cardNumber(cardNumber).activeSw(CardsConstants.IN_ACTIVE_SW).build();
         commandGateway.sendAndWait(deleteCommand);
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(org.springframework.http.HttpStatus.OK)
                 .body(new ResponseDto(CardsConstants.STATUS_200, CardsConstants.MESSAGE_200));
     }
 
